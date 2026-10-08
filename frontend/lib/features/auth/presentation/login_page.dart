@@ -50,6 +50,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final authState = ref.watch(authProvider);
 
     ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.isAuthenticated && previous?.isAuthenticated != true) {
+        context.go('/home');
+        return;
+      }
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(
