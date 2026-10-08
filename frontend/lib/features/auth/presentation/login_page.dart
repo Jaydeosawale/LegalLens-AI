@@ -32,6 +32,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
+    final router = GoRouter.of(context);
     try {
       await ref
           .read(authProvider.notifier)
@@ -39,6 +40,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             email: _emailController.text,
             password: _passwordController.text,
           );
+      router.go('/home');
     } catch (_) {
       // Error is handled through AuthState.
     }
@@ -50,10 +52,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final authState = ref.watch(authProvider);
 
     ref.listen<AuthState>(authProvider, (previous, next) {
-      if (next.isAuthenticated && previous?.isAuthenticated != true) {
-        context.go('/home');
-        return;
-      }
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(
