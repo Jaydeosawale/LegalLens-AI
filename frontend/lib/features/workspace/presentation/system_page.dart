@@ -119,10 +119,11 @@ class _SystemPageState extends ConsumerState<SystemPage> {
                             refresh();
                           }
                         } catch (e) {
-                          if (context.mounted)
+                          if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(apiError(e))),
                             );
+                          }
                         } finally {
                           if (mounted) setState(() => _savingLimit = false);
                         }
