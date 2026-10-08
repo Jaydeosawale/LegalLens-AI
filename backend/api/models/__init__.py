@@ -11,3 +11,4 @@ from .document_chunk import DocumentChunk
 from .document_embedding import DocumentEmbedding
 from .admin_permission import AdminPermission
 from .platform_permission import PlatformPermission
+from .chat_usage import ChatUsage

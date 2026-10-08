@@ -30,6 +30,7 @@ from api.models.user import User
 from api.schemas.chat import ChatResponse
 from api.services.conversation_service import ConversationService
 from api.services.rag_chain import RAGChain
+from api.services.chat_rate_limit import reserve_chat_message
 
 router = APIRouter(
     prefix="/chat",
@@ -92,6 +93,12 @@ async def chat(
                 raise HTTPException(404, "Document not found.")
             if any(document.approval_status != 'approved' or not document.access_enabled for document in allowed):
                 raise HTTPException(409, "Selected documents are awaiting approval or have been disabled.")
+
+        if conversation_id is not None and ConversationService.get_conversation(
+            db=db, conversation_id=conversation_id, user_id=current_user.id
+        ) is None:
+            raise HTTPException(404, "Conversation not found.")
+        reserve_chat_message(db, current_user)
 
         # =====================================================
         # Save Uploaded Image
