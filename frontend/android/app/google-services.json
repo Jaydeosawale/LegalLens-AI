@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "133412579657",
+    "project_id": "legallens-ai-d46f1",
+    "storage_bucket": "legallens-ai-d46f1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:133412579657:android:2aeeccd0eba451f6cf1298",
+        "android_client_info": {
+          "package_name": "com.jaydeo.legallens.frontend_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDddHUKKnguN_6uHeXL9hMFLAztB9cf-dw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

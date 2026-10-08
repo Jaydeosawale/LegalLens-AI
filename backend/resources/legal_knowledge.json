@@ -1,0 +1,401 @@
+{
+    "metadata": {
+        "name": "LegalLens AI Knowledge Base",
+        "version": "1.0.0",
+        "description": "Central knowledge repository for LegalLens AI backend.",
+        "country": "India",
+        "default_language": "en",
+        "supported_languages": [
+            "English",
+            "Hindi",
+            "Marathi"
+        ],
+        "created_by": "LegalLens AI",
+        "created_at": "2026-08-05",
+        "last_updated": "2026-08-05"
+    },
+    "models": {
+        "ocr": [
+            "PaddleOCR",
+            "EasyOCR"
+        ],
+        "vision": [
+            "SigLIP2",
+            "OpenCLIP"
+        ],
+        "embeddings": [
+            "BGE-M3",
+            "Jina Embeddings"
+        ],
+        "rerankers": [
+            "BGE-Reranker"
+        ],
+        "llms": [
+            "Gemma 3",
+            "Llama 3.3 70B",
+            "Mistral Large"
+        ]
+    },
+    "abbreviations": {
+        "SC": "Supreme Court",
+        "HC": "High Court",
+        "DC": "District Court",
+        "IPC": "Indian Penal Code",
+        "CrPC": "Code of Criminal Procedure",
+        "CPC": "Code of Civil Procedure",
+        "BNS": "Bharatiya Nyaya Sanhita",
+        "BNSS": "Bharatiya Nagarik Suraksha Sanhita",
+        "BSA": "Bharatiya Sakshya Adhiniyam",
+        "COI": "Constitution of India",
+        "PIL": "Public Interest Litigation",
+        "FIR": "First Information Report",
+        "Art": "Article",
+        "Sec": "Section"
+    },
+    "synonyms": {
+        "image": [
+            "images",
+            "photo",
+            "photos",
+            "picture",
+            "pictures",
+            "pic",
+            "photograph",
+            "photographs",
+            "snapshot",
+            "visual",
+            "graphic"
+        ],
+        "judgment": [
+            "judgement",
+            "decision",
+            "order",
+            "ruling",
+            "verdict",
+            "decree"
+        ],
+        "summary": [
+            "summarize",
+            "summarise",
+            "brief",
+            "overview",
+            "gist",
+            "short"
+        ],
+        "analyze": [
+            "analyse",
+            "inspect",
+            "study",
+            "interpret",
+            "examine"
+        ]
+    },
+    "legal_terms": [
+        "constitution",
+        "article",
+        "section",
+        "judgment",
+        "jurisdiction",
+        "petitioner",
+        "respondent",
+        "affidavit",
+        "precedent",
+        "tribunal",
+        "appeal",
+        "writ",
+        "bail",
+        "injunction",
+        "litigation",
+        "plaintiff",
+        "defendant",
+        "evidence",
+        "prosecution",
+        "defence",
+        "advocate",
+        "justice",
+        "bench"
+    ],
+    "courts": [
+        "Supreme Court",
+        "High Court",
+        "District Court",
+        "Sessions Court",
+        "Family Court",
+        "Consumer Court",
+        "National Green Tribunal",
+        "National Company Law Tribunal"
+    ],
+    "acts": [
+        "Constitution of India",
+        "Indian Penal Code",
+        "Code of Criminal Procedure",
+        "Code of Civil Procedure",
+        "Bharatiya Nyaya Sanhita",
+        "Bharatiya Nagarik Suraksha Sanhita",
+        "Bharatiya Sakshya Adhiniyam"
+    ],
+    "legal_roles": [
+        "Judge",
+        "Chief Justice",
+        "Advocate",
+        "Senior Advocate",
+        "Petitioner",
+        "Respondent",
+        "Appellant",
+        "Plaintiff",
+        "Defendant",
+        "Witness",
+        "Magistrate",
+        "Registrar"
+    ],
+    "latin_terms": [
+        "Habeas Corpus",
+        "Prima Facie",
+        "Mens Rea",
+        "Actus Reus",
+        "Sub Judice",
+        "Res Judicata",
+        "De Facto",
+        "De Jure",
+        "In Camera"
+    ],
+    "vision_terms": [
+        "building",
+        "court",
+        "courtroom",
+        "judge",
+        "bench",
+        "gavel",
+        "seal",
+        "emblem",
+        "logo",
+        "document",
+        "signature",
+        "stamp"
+    ],
+    "ocr_terms": [
+        "ocr",
+        "extract",
+        "scan",
+        "recognize",
+        "recognise",
+        "read",
+        "text",
+        "handwritten",
+        "printed",
+        "document"
+    ],
+    "ai_terms": [
+        "embedding",
+        "vector",
+        "similarity",
+        "retrieval",
+        "reranker",
+        "ocr",
+        "clip",
+        "openclip",
+        "siglip",
+        "siglip2",
+        "llm",
+        "rag",
+        "multimodal"
+    ],
+    "document_types": [
+        "Judgment",
+        "Order",
+        "Petition",
+        "Appeal",
+        "Constitution",
+        "Act",
+        "Agreement",
+        "Contract",
+        "Affidavit",
+        "Notice",
+        "Circular",
+        "Legal Opinion"
+    ],
+    "image_categories": [
+        "Court Building",
+        "Courtroom",
+        "Judge",
+        "Legal Document",
+        "Seal",
+        "Logo",
+        "Emblem",
+        "Signature",
+        "Stamp"
+    ],
+    "stopwords": [],
+    "intent_keywords": {
+        "GREETING": [
+            "hello",
+            "hi",
+            "hey",
+            "good morning",
+            "good afternoon",
+            "good evening",
+            "thanks",
+            "thank you",
+            "bye",
+            "goodbye"
+        ],
+        "SUMMARIZATION": [
+            "summarize",
+            "summary",
+            "brief",
+            "short",
+            "short version",
+            "gist",
+            "overview",
+            "key points",
+            "explain briefly"
+        ],
+        "OCR": [
+            "ocr",
+            "extract text",
+            "read text",
+            "text from image",
+            "recognize text",
+            "scan",
+            "scan document",
+            "read document",
+            "read pdf",
+            "handwritten",
+            "handwriting",
+            "printed text"
+        ],
+        "IMAGE_SEARCH": [
+            "find image",
+            "search image",
+            "show image",
+            "show images",
+            "image",
+            "images",
+            "photo",
+            "photos",
+            "picture",
+            "pictures",
+            "building",
+            "court building",
+            "logo",
+            "symbol",
+            "seal",
+            "emblem",
+            "judge photo",
+            "courtroom",
+            "find similar",
+            "similar image"
+        ],
+        "IMAGE": [
+            "describe image",
+            "describe",
+            "identify",
+            "recognize",
+            "detect",
+            "classify",
+            "what is this",
+            "what is shown",
+            "what do you see",
+            "analyze image",
+            "analyze",
+            "explain image",
+            "explain this image"
+        ],
+        "LEGAL_SEARCH": [
+            "article",
+            "section",
+            "constitution",
+            "case",
+            "case law",
+            "judgment",
+            "judgement",
+            "court",
+            "supreme court",
+            "high court",
+            "act",
+            "rule",
+            "legal",
+            "law",
+            "ipc",
+            "crpc",
+            "bns",
+            "bnss",
+            "evidence act"
+        ],
+        "CITATION": [
+            "citation",
+            "citations",
+            "reference",
+            "references",
+            "source",
+            "sources",
+            "case citation"
+        ],
+        "COMPARISON": [
+            "compare",
+            "comparison",
+            "difference",
+            "versus",
+            "vs",
+            "distinguish"
+        ],
+        "TIMELINE": [
+            "timeline",
+            "history",
+            "chronology",
+            "events",
+            "sequence"
+        ]
+    },
+    "query_patterns": {},
+    "aliases": {},
+    "rewrite_rules": {
+        "LEGAL_SEARCH": {
+            "remove": [
+                "what",
+                "what is",
+                "explain",
+                "tell me",
+                "describe",
+                "please"
+            ],
+            "append": [
+                "constitution of india"
+            ]
+        },
+        "IMAGE_SEARCH": {
+            "append": [
+                "image",
+                "photo",
+                "picture"
+            ]
+        },
+        "OCR": {
+            "append": [
+                "extract text"
+            ]
+        },
+        "COMPARISON": {
+            "append": [
+                "compare"
+            ]
+        },
+        "TIMELINE": {
+            "append": [
+                "timeline"
+            ]
+        }
+    },
+    "routing_rules": {},
+    "canonical_terms": {
+        "judgement": "judgment",
+        "judgements": "judgments",
+        "art": "article",
+        "art.": "article",
+        "sec": "section",
+        "sec.": "section",
+        "vs": "versus",
+        "v/s": "versus",
+        "constitution india": "constitution of india"
+    }
+}

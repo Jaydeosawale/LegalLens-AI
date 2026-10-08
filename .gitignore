@@ -1,0 +1,49 @@
+# Virtual Environment
+.venv/
+frontend/.dart_tool/
+frontend/build/
+frontend/.flutter-plugins-dependencies
+frontend/android/.gradle/
+frontend/android/local.properties
+backend/legal_lens.db
+backend/data/
+
+# Python
+__pycache__/
+*.pyc
+
+# Environment Variables
+.env
+
+# macOS
+.DS_Store
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Vector database
+vectorstore/
+
+# Uploaded files
+data/uploads/
+# =========================================================
+# FIREBASE SECRETS
+# =========================================================
+firebase-service-account.json
+serviceAccountKey.json
+service-account*.json
+*-firebase-adminsdk-*.json
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local development artifacts
+*.backup
+**/.kotlin/
+**/.cxx/
+**/ephemeral/
+*.jks
+*.keystore
+key.properties

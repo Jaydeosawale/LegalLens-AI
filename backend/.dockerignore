@@ -1,0 +1,10 @@
+.env*
+!.env.example
+data/
+**/vectorstore/
+__pycache__/
+*.pyc
+*.db
+tests/
+*service-account*.json
+*firebase-adminsdk*.json

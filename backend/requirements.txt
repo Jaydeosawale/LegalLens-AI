@@ -1,0 +1,53 @@
+
+# FastAPI
+fastapi
+uvicorn[standard]
+
+# Database
+sqlalchemy
+psycopg2-binary
+pgvector
+
+# Authentication
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+email-validator
+
+# LangChain
+langchain==0.3.27
+langchain-core==0.3.72
+langchain-community==0.3.27
+langchain-groq==0.3.7
+langchain-huggingface==0.3.1
+
+# Vector Search
+faiss-cpu==1.11.0.post1
+rank-bm25
+
+# Embeddings / Reranker
+sentence-transformers==5.0.0
+transformers
+torch
+accelerate
+
+# Hugging Face
+huggingface-hub==0.34.3
+
+# OpenCLIP Image Search
+open-clip-torch
+Pillow
+
+# PDF Processing
+pypdf==5.9.0
+pdf2image
+PyMuPDF
+
+# ML
+numpy
+scikit-learn
+
+# Utilities
+python-dotenv==1.1.1
+requests
+firebase-admin
