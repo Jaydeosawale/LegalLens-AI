@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../chat/providers/chat_providers.dart';
 import 'workspace_pages.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../../core/auth/user_role.dart';
 
 class SystemPage extends ConsumerStatefulWidget {
   const SystemPage({super.key});
@@ -11,6 +13,8 @@ class SystemPage extends ConsumerStatefulWidget {
 
 class _SystemPageState extends ConsumerState<SystemPage> {
   final _model = TextEditingController();
+  final _dailyLimit = TextEditingController();
+  bool _savingLimit = false;
   double _temperature = 0;
   int _topK = 8;
   bool _saving = false;
@@ -18,6 +22,7 @@ class _SystemPageState extends ConsumerState<SystemPage> {
   @override
   void dispose() {
     _model.dispose();
+    _dailyLimit.dispose();
     super.dispose();
   }
 
@@ -31,6 +36,8 @@ class _SystemPageState extends ConsumerState<SystemPage> {
         _model.text = settings['model_name'].toString();
         _temperature = (settings['temperature'] as num).toDouble();
         _topK = (settings['top_k'] as num).toInt();
+        _dailyLimit.text =
+            '${data['chat_limits']?['normal_user_daily_messages'] ?? 10}';
         _initialized = true;
       }
       final health = data['health'] as Map;
@@ -61,6 +68,69 @@ class _SystemPageState extends ConsumerState<SystemPage> {
                 .toList(),
           ),
           const Divider(height: 40),
+          if (ref.watch(authProvider).user?.role == UserRole.superAdmin) ...[
+            Text('Chat Limits', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: 280,
+              child: TextField(
+                controller: _dailyLimit,
+                enabled: !_savingLimit,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Daily messages per normal user',
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FilledButton.icon(
+                icon: const Icon(Icons.save_outlined),
+                label: const Text('Save chat limit'),
+                onPressed: _savingLimit
+                    ? null
+                    : () async {
+                        final limit = int.tryParse(_dailyLimit.text.trim());
+                        if (limit == null || limit < 10 || limit > 1000) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Enter a whole number from 10 to 1000.',
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+                        setState(() => _savingLimit = true);
+                        try {
+                          await ref
+                              .read(dioProvider)
+                              .put(
+                                '/admin/system/chat-limits',
+                                data: {'normal_user_daily_messages': limit},
+                              );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Daily chat limit saved.'),
+                              ),
+                            );
+                            refresh();
+                          }
+                        } catch (e) {
+                          if (context.mounted)
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(apiError(e))),
+                            );
+                        } finally {
+                          if (mounted) setState(() => _savingLimit = false);
+                        }
+                      },
+              ),
+            ),
+            const Divider(height: 40),
+          ],
           Text('AI Model', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
           TextField(
