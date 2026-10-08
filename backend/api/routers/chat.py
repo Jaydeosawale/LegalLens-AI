@@ -90,6 +90,8 @@ async def chat(
             allowed = document_query(db, current_user).filter(Document.id.in_(selected_ids)).all()
             if len(allowed) != len(set(selected_ids)):
                 raise HTTPException(404, "Document not found.")
+            if any(document.approval_status != 'approved' or not document.access_enabled for document in allowed):
+                raise HTTPException(409, "Selected documents are awaiting approval or have been disabled.")
 
         # =====================================================
         # Save Uploaded Image

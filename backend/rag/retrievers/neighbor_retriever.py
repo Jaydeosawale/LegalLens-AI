@@ -184,6 +184,8 @@ class NeighborRetriever:
 
                             Document.processing_status
                             == "completed",
+                            Document.approval_status == "approved",
+                            Document.access_enabled.is_(True),
                         )
                     )
 

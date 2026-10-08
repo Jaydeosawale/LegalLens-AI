@@ -14,6 +14,7 @@ import re
 
 from langchain_core.documents import Document as LCDocument
 from rank_bm25 import BM25Okapi
+from api.core.document_access import rag_document_query
 from sqlalchemy.orm import joinedload
 
 from api.database.database import SessionLocal
@@ -83,6 +84,7 @@ class PostgresBM25Retriever:
         db = SessionLocal()
 
         try:
+            allowed_ids = [document.id for document in rag_document_query(db, user_id, document_ids).all()]
 
             # -------------------------------------------------
             # Load completed document chunks from PostgreSQL
@@ -101,8 +103,9 @@ class PostgresBM25Retriever:
                 )
                 .filter(
                     Document.processing_status == "completed",
-                    or_(Document.user_id == user_id, Document.id.in_(document_ids or [])),
-                    Document.id.in_(document_ids) if document_ids is not None else True,
+                    Document.approval_status == "approved",
+                    Document.access_enabled.is_(True),
+                    Document.id.in_(allowed_ids),
                 )
                 .order_by(
                     DocumentChunk.document_id,

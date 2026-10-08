@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, String, Text
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -65,6 +65,14 @@ class Document(Base):
         nullable=False,
         default="pending",
     )
+
+    approval_status: Mapped[str] = mapped_column(String(20), default="draft", nullable=False)
+    submitted_by: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    rag_scope: Mapped[str] = mapped_column(String(20), default="private", nullable=False)
+    access_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    reviewed_by: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    review_note: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     created_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),

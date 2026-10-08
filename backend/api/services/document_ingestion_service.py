@@ -10,6 +10,8 @@ from api.models.document import Document
 from api.models.document_chunk import DocumentChunk
 from api.models.document_embedding import DocumentEmbedding
 from api.storage.r2_storage import r2_storage
+from api.models.user import User
+from api.models.role import UserRole
 
 from ingestion.document_loader import DocumentLoader
 from rag.chunking.text_splitter import TextSplitter
@@ -177,6 +179,8 @@ class DocumentIngestionService:
                 file_size=len(file_bytes),
                 file_hash=file_hash,
                 processing_status="processing",
+                approval_status="pending" if db.get(User, user_id).role in (UserRole.ADMIN, UserRole.SUPER_ADMIN) else "draft",
+                submitted_by=user_id if db.get(User, user_id).role in (UserRole.ADMIN, UserRole.SUPER_ADMIN) else None,
             )
 
             db.add(document)
@@ -232,54 +236,7 @@ class DocumentIngestionService:
 
             db.flush()
 
-            # -----------------------------------------
-            # 12. Load embedding model
-            # -----------------------------------------
-
-            embedding_model = (
-                EmbeddingModel.get_model()
-            )
-
-            texts = [
-                chunk.content
-                for chunk in chunk_records
-            ]
-
-            # -----------------------------------------
-            # 13. Generate embeddings
-            # -----------------------------------------
-
-            embeddings = (
-                embedding_model.embed_documents(texts)
-            )
-
-            if len(embeddings) != len(chunk_records):
-
-                raise ValueError(
-                    "Embedding count does not match "
-                    "chunk count."
-                )
-
-            # -----------------------------------------
-            # 14. Save pgvector embeddings
-            # -----------------------------------------
-
-            for chunk_record, embedding in zip(
-                chunk_records,
-                embeddings,
-            ):
-
-                embedding_record = DocumentEmbedding(
-                    chunk_id=chunk_record.id,
-                    embedding=list(embedding),
-                )
-
-                db.add(embedding_record)
-
-            # -----------------------------------------
-            # 15. Mark document completed
-            # -----------------------------------------
-
+            # Vectors are created only after super-admin approval.
             document.processing_status = "completed"
 
             db.commit()
@@ -291,7 +248,8 @@ class DocumentIngestionService:
                 "filename": document.original_filename,
                 "chunks_created": len(chunk_records),
                 "status": document.processing_status,
-                "message": "Document processed successfully.",
+                "approval_status": document.approval_status,
+                "message": "Document uploaded and awaiting super-admin review.",
             }
 
         except Exception:

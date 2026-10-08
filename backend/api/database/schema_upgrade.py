@@ -11,6 +11,16 @@ def prepare_database(engine, metadata):
                     "ALTER TABLE users ALTER COLUMN role TYPE VARCHAR(32) USING role::text"
                 ))
             if inspector.has_table("documents"):
+                for definition in (
+                    "approval_status VARCHAR(20) NOT NULL DEFAULT 'draft'",
+                    "submitted_by VARCHAR(36)",
+                    "rag_scope VARCHAR(20) NOT NULL DEFAULT 'private'",
+                    "access_enabled BOOLEAN NOT NULL DEFAULT true",
+                    "reviewed_by VARCHAR(36)",
+                    "reviewed_at TIMESTAMPTZ",
+                    "review_note TEXT",
+                ):
+                    connection.execute(text(f"ALTER TABLE documents ADD COLUMN IF NOT EXISTS {definition}"))
                 columns = {column["name"]: column for column in inspector.get_columns("documents")}
                 if str(columns["user_id"]["type"]).lower() == "uuid":
                     connection.execute(text(

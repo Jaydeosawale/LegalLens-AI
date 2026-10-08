@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session
 
 from api.database.database import SessionLocal
 from rag.embeddings.embeddings import EmbeddingModel
+from api.core.document_access import rag_document_query
 
 
 class PostgresVectorRetriever:
@@ -78,6 +79,9 @@ class PostgresVectorRetriever:
             owns_session = True
 
         try:
+            allowed_ids = [str(document.id) for document in rag_document_query(db, user_id, document_ids).all()]
+            if not allowed_ids:
+                return []
 
             # --------------------------------------------------
             # 3. pgvector similarity search
@@ -114,8 +118,9 @@ class PostgresVectorRetriever:
                 JOIN documents d
                     ON dc.document_id = d.id
                 WHERE d.processing_status = 'completed'
-                  AND (d.user_id = :user_id OR CAST(d.id AS text) = ANY(:document_ids))
-                  AND (:all_documents OR CAST(d.id AS text) = ANY(:document_ids))
+                  AND d.approval_status = 'approved'
+                  AND d.access_enabled = true
+                  AND CAST(d.id AS text) = ANY(:document_ids)
                 ORDER BY
                     de.embedding
                     <=> CAST(:embedding AS vector)
@@ -129,7 +134,7 @@ class PostgresVectorRetriever:
                     "k": k,
                     "user_id": user_id,
                     "all_documents": document_ids is None,
-                    "document_ids": document_ids or [],
+                    "document_ids": allowed_ids,
                 },
             )
 

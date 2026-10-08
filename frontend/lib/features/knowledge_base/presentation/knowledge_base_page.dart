@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../workspace/presentation/workspace_pages.dart';
 import '../../chat/providers/chat_providers.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../../core/auth/user_role.dart';
 
 class KnowledgeBasePage extends ConsumerStatefulWidget {
   const KnowledgeBasePage({super.key});
@@ -22,6 +24,7 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
   bool _uploading = false;
   String? _error;
   String _search = '';
+  String _reviewFilter = 'all';
 
   @override
   void initState() {
@@ -91,7 +94,7 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
         _showMessage(
           data['duplicates'] == 1
               ? 'This PDF is already in the knowledge base.'
-              : 'Document added to the knowledge base.',
+              : 'Document uploaded. Approval is required before RAG use.',
         );
         await _loadDocuments();
       }
@@ -113,14 +116,121 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  Future<void> _manageDocument(
+    String action,
+    Map<String, dynamic> document,
+  ) async {
+    final dio = ref.read(dioProvider);
+    final id = document['id'];
+    try {
+      if (action == 'access') {
+        await dio.patch(
+          '/documents/$id/access',
+          data: {'enabled': document['access_enabled'] != true},
+        );
+      } else if (action == 'submit') {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Submit for review?'),
+            content: const Text(
+              'RAG use will remain unavailable until the super admin approves this document.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Submit'),
+              ),
+            ],
+          ),
+        );
+        if (confirmed != true) return;
+        await dio.post('/documents/$id/submit');
+      } else {
+        var shared = false;
+        var note = '';
+        final canShare = [
+          'admin',
+          'super_admin',
+        ].contains(document['owner_role']);
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => StatefulBuilder(
+            builder: (context, setDialogState) => AlertDialog(
+              title: Text(
+                action == 'approved' ? 'Approve document?' : 'Reject document?',
+              ),
+              content: SizedBox(
+                width: 420,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (action == 'approved' && canShare)
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Shared knowledge base'),
+                        value: shared,
+                        onChanged: (value) =>
+                            setDialogState(() => shared = value),
+                      ),
+                    TextField(
+                      maxLength: 1000,
+                      maxLines: 3,
+                      decoration: const InputDecoration(
+                        labelText: 'Review note',
+                      ),
+                      onChanged: (value) => note = value,
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Text(
+                    action == 'approved' ? 'Approve and index' : 'Reject',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+        if (confirmed != true) return;
+        await dio.post(
+          '/documents/$id/review',
+          data: {
+            'decision': action,
+            'scope': shared ? 'shared' : 'private',
+            'note': note,
+          },
+        );
+      }
+      if (mounted) await _loadDocuments();
+    } catch (error) {
+      if (mounted) _showMessage(apiError(error));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const canUpload = true;
+    final role = ref.watch(authProvider).role ?? UserRole.user;
     final visible = _documents
         .where(
-          (d) => d['filename'].toString().toLowerCase().contains(
-            _search.toLowerCase(),
-          ),
+          (d) =>
+              (_reviewFilter == 'all' ||
+                  d['approval_status'] == _reviewFilter) &&
+              d['filename'].toString().toLowerCase().contains(
+                _search.toLowerCase(),
+              ),
         )
         .toList();
 
@@ -173,6 +283,35 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
                   onChanged: (value) => setState(() => _search = value),
                 ),
                 const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  initialValue: _reviewFilter,
+                  decoration: const InputDecoration(labelText: 'Review status'),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'all',
+                      child: Text('All documents'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'draft',
+                      child: Text('Awaiting admin submission'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'pending',
+                      child: Text('Pending super-admin review'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'approved',
+                      child: Text('Approved'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'rejected',
+                      child: Text('Rejected'),
+                    ),
+                  ],
+                  onChanged: (value) =>
+                      setState(() => _reviewFilter = value ?? 'all'),
+                ),
+                const SizedBox(height: 16),
                 if (_loading)
                   const Expanded(
                     child: Center(child: CircularProgressIndicator()),
@@ -198,16 +337,14 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
                           leading: const Icon(Icons.picture_as_pdf_outlined),
                           title: Text(name, overflow: TextOverflow.ellipsis),
                           subtitle: Text(
-                            size == null
-                                ? 'PDF'
-                                : '${(size / 1024).toStringAsFixed(0)} KB',
+                            '${document['approval_status'] ?? 'draft'} | ${document['rag_scope'] ?? 'private'} | ${document['access_enabled'] == false ? 'Access disabled' : 'Access enabled'}${size == null ? '' : ' | ${(size / 1024).toStringAsFixed(0)} KB'}',
                           ),
                           onTap: () => showDialog<void>(
                             context: context,
                             builder: (context) => AlertDialog(
                               title: Text(name),
                               content: Text(
-                                'Status: ${document['status']}\nSize: ${size == null ? '-' : '${(size / 1024).round()} KB'}\nUploaded: ${document['created_at'].toString().split('T').first}',
+                                'Processing: ${document['status']}\nReview: ${document['approval_status']}\nScope: ${document['rag_scope']}\nReview note: ${document['review_note'] ?? '-'}\nSize: ${size == null ? '-' : '${(size / 1024).round()} KB'}\nUploaded: ${document['created_at'].toString().split('T').first}',
                               ),
                               actions: [
                                 TextButton(
@@ -219,17 +356,55 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
                           ),
                           trailing: PopupMenuButton<String>(
                             tooltip: 'Document actions',
-                            itemBuilder: (_) => const [
-                              PopupMenuItem(
-                                value: 'summary',
-                                child: Text('Summarize'),
-                              ),
-                              PopupMenuItem(
+                            itemBuilder: (_) => [
+                              if (document['approval_status'] == 'approved' &&
+                                  document['access_enabled'] != false)
+                                const PopupMenuItem(
+                                  value: 'summary',
+                                  child: Text('Summarize'),
+                                ),
+                              if (role.isAdministrator) ...[
+                                if (document['approval_status'] != 'pending')
+                                  const PopupMenuItem(
+                                    value: 'submit',
+                                    child: Text('Submit for review'),
+                                  ),
+                                if (role == UserRole.superAdmin &&
+                                    document['approval_status'] ==
+                                        'pending') ...[
+                                  const PopupMenuItem(
+                                    value: 'approved',
+                                    child: Text('Approve and index'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'rejected',
+                                    child: Text('Reject'),
+                                  ),
+                                ],
+                                PopupMenuItem(
+                                  value: 'access',
+                                  child: Text(
+                                    document['access_enabled'] == false
+                                        ? 'Enable access'
+                                        : 'Disable access',
+                                  ),
+                                ),
+                              ],
+                              const PopupMenuItem(
                                 value: 'delete',
                                 child: Text('Delete'),
                               ),
                             ],
                             onSelected: (action) async {
+                              if ([
+                                'submit',
+                                'approved',
+                                'rejected',
+                                'access',
+                              ].contains(action)) {
+                                await _manageDocument(action, document);
+                                return;
+                              }
                               if (action == 'summary') {
                                 context.go(
                                   '/summary?document=${document['id']}',
