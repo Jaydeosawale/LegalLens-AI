@@ -22,7 +22,6 @@ class NavigationConfig {
       icon: Icons.grid_view_rounded,
       route: '/home',
       allowedRoles: [
-        UserRole.user,
         UserRole.legalProfessional,
         UserRole.admin,
         UserRole.superAdmin,

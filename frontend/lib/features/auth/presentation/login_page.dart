@@ -33,6 +33,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
 
     final router = GoRouter.of(context);
+    final navigator = Navigator.of(context, rootNavigator: true);
     try {
       await ref
           .read(authProvider.notifier)
@@ -40,9 +41,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             email: _emailController.text,
             password: _passwordController.text,
           );
-      router.go('/home');
+      router.go('/');
     } catch (_) {
-      // Error is handled through AuthState.
+      if (!navigator.mounted) return;
+      final message =
+          ref.read(authProvider).errorMessage ??
+          'Unable to sign in. Please try again.';
+      await showDialog<void>(
+        context: navigator.context,
+        builder: (context) => AlertDialog(
+          title: const Text('Sign-in failed'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -50,18 +67,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authState = ref.watch(authProvider);
-
-    ref.listen<AuthState>(authProvider, (previous, next) {
-      if (next.errorMessage != null &&
-          next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.errorMessage!),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    });
 
     return Scaffold(
       body: SafeArea(
@@ -184,10 +189,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               return 'Please enter your password.';
                             }
 
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters.';
-                            }
-
                             return null;
                           },
                         ),
@@ -233,8 +234,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         // =====================================
                         // REGISTER
                         // =====================================
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             const Text('New to Legal Lens?'),
                             TextButton(

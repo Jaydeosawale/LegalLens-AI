@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/user_role.dart';
-import '../../../core/widgets/app_role_shell.dart';
-import '../../workspace/presentation/workspace_pages.dart';
 import '../providers/auth_provider.dart';
 import 'login_page.dart';
 
@@ -14,44 +13,17 @@ class AuthGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
 
-    // =======================================================
-    // LOADING
-    // =======================================================
-
-    if (authState.isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    // =======================================================
-    // NOT AUTHENTICATED
-    // =======================================================
-
+    // Keep the form mounted while sign-in is pending so failures remain visible.
     if (!authState.isAuthenticated) {
       return const LoginPage();
     }
 
     final role = authState.role ?? UserRole.user;
 
-    // =======================================================
-    // NORMAL USER
-    //
-    // Focused Legal AI Assistant experience.
-    // =======================================================
-
-    if (!role.isAdministrator) {
-      return const AppRoleShell(child: DashboardPage());
-    }
-
-    // =======================================================
-    // ADMIN + SUPER ADMIN
-    //
-    // IMPORTANT:
-    // AuthGate must also use AppRoleShell.
-    //
-    // Otherwise authenticated admins entering through "/"
-    // bypass ResponsiveAppShell and NavigationSidebar.
-    // =======================================================
-
-    return const AppRoleShell(child: DashboardPage());
+    final router = GoRouter.of(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router.go(role == UserRole.user ? '/chat' : '/home');
+    });
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

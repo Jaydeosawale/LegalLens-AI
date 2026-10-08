@@ -17,12 +17,17 @@ class AppRoleShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authProvider);
+    if (!auth.isAuthenticated) return const LoginPage();
     if (auth.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    if (!auth.isAuthenticated) return const LoginPage();
     final role = auth.role ?? UserRole.user;
     final path = GoRouterState.of(context).uri.path;
+    if (role == UserRole.user && path == '/home') {
+      final router = GoRouter.of(context);
+      WidgetsBinding.instance.addPostFrameCallback((_) => router.go('/chat'));
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final matches = NavigationConfig.items.where((item) => item.route == path);
     if (matches.isNotEmpty) {
       final item = matches.first;

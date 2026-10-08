@@ -251,6 +251,7 @@ class AuthNotifier extends Notifier<AuthState> {
       case 'user-not-found':
       case 'wrong-password':
       case 'invalid-credential':
+      case 'invalid-login-credentials':
         return 'Incorrect email or password.';
 
       case 'email-already-in-use':

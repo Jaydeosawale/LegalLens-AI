@@ -284,6 +284,7 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
+                  isExpanded: true,
                   initialValue: _reviewFilter,
                   decoration: const InputDecoration(labelText: 'Review status'),
                   items: const [
