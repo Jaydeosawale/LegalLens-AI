@@ -84,13 +84,16 @@ Answer
 
         history = []
 
-        for message in memory:
+        remaining = 2000
+        for message in reversed(memory):
+            text = f"{message.type.upper()}: {message.content}"
+            size = len(text.encode('utf-8')) + 1
+            if size > remaining:
+                break
+            history.append(text)
+            remaining -= size
 
-            history.append(
-                f"{message.type.upper()}: {message.content}"
-            )
-
-        return "\n".join(history)
+        return "\n".join(reversed(history))
 
     @classmethod
     def build_chain(cls, llm):

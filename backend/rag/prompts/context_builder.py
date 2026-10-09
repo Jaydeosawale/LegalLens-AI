@@ -19,6 +19,17 @@ class ContextBuilder:
     """
 
     @staticmethod
+    def select_documents(documents, max_bytes=12000):
+        selected = []
+        remaining = max_bytes
+        for document in documents:
+            size = len(document.page_content.encode('utf-8')) + 400
+            if size <= remaining:
+                selected.append(document)
+                remaining -= size
+        return selected
+
+    @staticmethod
     def build(
         documents,
         image_results=None,

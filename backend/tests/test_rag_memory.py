@@ -34,6 +34,12 @@ class KeywordMemoryTest(DocumentReviewTest):
 
 
 class EmbeddingMemoryTest(unittest.TestCase):
+    def test_context_budget_keeps_complete_passages(self):
+        from rag.prompts.context_builder import ContextBuilder
+        first, second = Mock(page_content='a' * 800), Mock(page_content='b' * 800)
+        self.assertEqual(ContextBuilder.select_documents([first, second], max_bytes=1500), [first])
+        self.assertEqual(first.page_content, 'a' * 800)
+
     def test_free_tier_preserves_source_text_without_compression_calls(self):
         from rag.retrievers.context_compressor import ContextCompressor
         documents = [Mock(page_content='Original legal source')]

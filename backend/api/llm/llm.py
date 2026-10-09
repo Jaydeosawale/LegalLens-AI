@@ -26,6 +26,9 @@ class LLMService:
                 groq_api_key=GROQ_API_KEY,
                 model=settings['model_name'],
                 temperature=settings['temperature'],
+                max_tokens=1024,
+                timeout=45,
+                max_retries=1,
                 streaming=True
             )
             cls._configuration = configuration

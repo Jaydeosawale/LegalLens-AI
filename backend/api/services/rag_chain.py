@@ -109,6 +109,7 @@ class RAGChain:
             question=question,
             documents=documents,
         )
+        documents = ContextBuilder.select_documents(documents)
 
         print(
             "Documents After Compression:",
