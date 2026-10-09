@@ -1,4 +1,6 @@
 from datetime import datetime, timezone
+import hashlib
+import math
 from uuid import uuid4
 from fastapi import HTTPException
 from sqlalchemy import insert, select
@@ -11,7 +13,7 @@ from api.models.system_settings import SystemEvent
 from rag.embeddings.embeddings import EmbeddingModel
 
 
-def review_document(db, document, reviewer, decision, scope, note):
+def review_document(db, document, reviewer, decision, scope, note, precomputed_embeddings=None):
     if reviewer.role != UserRole.SUPER_ADMIN:
         raise HTTPException(403, 'Only the super admin can approve or reject RAG documents.')
     if decision == 'approved':
@@ -22,6 +24,13 @@ def review_document(db, document, reviewer, decision, scope, note):
         owner = db.get(User, document.user_id) if document.user_id else None
         if scope == 'shared' and (owner is None or owner.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)):
             raise HTTPException(422, 'Personal user uploads must remain private.')
+    elif precomputed_embeddings is not None:
+        raise HTTPException(422, 'Embeddings are only accepted for approval.')
+    supplied = None
+    if precomputed_embeddings is not None:
+        supplied = {item.chunk_index: item for item in precomputed_embeddings}
+        if len(supplied) != len(precomputed_embeddings):
+            raise HTTPException(422, 'Duplicate chunk indexes in supplied embeddings.')
     model = None
     try:
         chunk_ids = select(DocumentChunk.id).where(DocumentChunk.document_id == document.id)
@@ -29,7 +38,8 @@ def review_document(db, document, reviewer, decision, scope, note):
         if decision == 'approved':
             last_index = -1
             indexed = 0
-            model = EmbeddingModel.get_model()
+            if supplied is None:
+                model = EmbeddingModel.get_model()
             while True:
                 rows = db.execute(
                     select(DocumentChunk.id, DocumentChunk.content, DocumentChunk.chunk_index)
@@ -39,7 +49,17 @@ def review_document(db, document, reviewer, decision, scope, note):
                 ).all()
                 if not rows:
                     break
-                vectors = model.embed_documents([row.content for row in rows])
+                if supplied is None:
+                    vectors = model.embed_documents([row.content for row in rows])
+                else:
+                    vectors = []
+                    for row in rows:
+                        item = supplied.get(row.chunk_index)
+                        if item is None or item.content_sha256 != hashlib.sha256(row.content.encode()).hexdigest():
+                            raise HTTPException(422, 'Supplied embeddings do not match document chunks.')
+                        if len(item.embedding) != 384 or not all(math.isfinite(value) for value in item.embedding):
+                            raise HTTPException(422, 'Supplied embedding has invalid dimensions or values.')
+                        vectors.append(item.embedding)
                 if len(vectors) != len(rows):
                     raise HTTPException(503, 'Document indexing failed. Please retry.')
                 db.execute(insert(DocumentEmbedding), [
@@ -50,6 +70,8 @@ def review_document(db, document, reviewer, decision, scope, note):
                 last_index = rows[-1].chunk_index
             if not indexed:
                 raise HTTPException(409, 'This document has no extracted content.')
+            if supplied is not None and indexed != len(supplied):
+                raise HTTPException(422, 'Supplied embeddings do not match document chunk count.')
         document.approval_status = decision
         document.rag_scope = scope if decision == 'approved' else 'private'
         document.reviewed_by = reviewer.id

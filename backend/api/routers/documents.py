@@ -36,10 +36,17 @@ router = APIRouter(
 )
 
 
+class ReviewedEmbedding(BaseModel):
+    chunk_index: int = Field(ge=0)
+    content_sha256: str = Field(pattern=r'^[0-9a-f]{64}$')
+    embedding: list[float] = Field(min_length=384, max_length=384)
+
+
 class ReviewRequest(BaseModel):
     decision: Literal['approved', 'rejected']
     scope: Literal['private', 'shared'] = 'private'
     note: str = Field(default='', max_length=1000)
+    precomputed_embeddings: list[ReviewedEmbedding] | None = Field(default=None, max_length=1000)
 
 
 class AccessRequest(BaseModel):
@@ -85,7 +92,8 @@ def submit_review(document_id: str, db: Session = Depends(get_db), actor: User =
 def document_review(document_id: str, payload: ReviewRequest, db: Session = Depends(get_db), actor: User = Depends(document_actor)):
     document = managed_document(db, actor, document_id)
     try:
-        review_document(db, document, actor, payload.decision, payload.scope, payload.note)
+        review_document(db, document, actor, payload.decision, payload.scope, payload.note,
+                        payload.precomputed_embeddings)
         return {'success': True, **review_fields(document, db)}
     except Exception:
         db.rollback()

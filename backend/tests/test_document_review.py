@@ -1,5 +1,7 @@
 """Verify RAG approval and private/shared document boundaries."""
 from unittest.mock import patch, Mock
+from types import SimpleNamespace
+import hashlib
 import os
 os.environ["DATABASE_URL"] = "sqlite://"
 from fastapi import HTTPException
@@ -99,3 +101,23 @@ class DocumentReviewTest(RoleFlowsTest):
                 with self.assertRaises(RuntimeError):
                     review_document(self.db, doc, self.users[UserRole.SUPER_ADMIN], "approved", "shared", None)
         release.assert_called_once()
+
+    def test_precomputed_embeddings_require_matching_chunk_text(self):
+        doc = self.document(UserRole.ADMIN)
+        supplied = [SimpleNamespace(chunk_index=0,
+                                    content_sha256=hashlib.sha256(b'Legal clause').hexdigest(),
+                                    embedding=[0.1] * 384)]
+        with patch("api.services.document_review_service.EmbeddingModel.get_model") as get_model:
+            review_document(self.db, doc, self.users[UserRole.SUPER_ADMIN],
+                            "approved", "shared", None, supplied)
+        get_model.assert_not_called()
+        self.assertEqual(self.db.query(DocumentEmbedding).count(), 1)
+
+        other = self.document(UserRole.ADMIN)
+        supplied[0].content_sha256 = "0" * 64
+        with self.assertRaises(HTTPException) as caught:
+            review_document(self.db, other, self.users[UserRole.SUPER_ADMIN],
+                            "approved", "shared", None, supplied)
+        self.assertEqual(caught.exception.status_code, 422)
+        self.db.rollback()
+        self.assertEqual(other.approval_status, "pending")
