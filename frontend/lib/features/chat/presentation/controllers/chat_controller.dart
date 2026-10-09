@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 
 import '../../domain/models/chat_models.dart';
 import '../../domain/repositories/chat_repository.dart';
+import '../../data/services/chat_api_service.dart';
 
 class ChatController extends ChangeNotifier {
   ChatController({required this.repository, this.dio});
@@ -305,10 +306,9 @@ class ChatController extends ChangeNotifier {
   // ============================================================
 
   String _getErrorMessage(Object error) {
-    return '''
-Sorry, I couldn't connect to Legal Lens.
-
-Please make sure the Legal Lens backend server is running and try again.
-''';
+    if (error is ChatApiException) {
+      return error.message;
+    }
+    return 'Unable to complete your request. Please try again shortly.';
   }
 }

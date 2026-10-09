@@ -35,7 +35,8 @@ def reserve_chat_message(db, user, now=None):
     if admitted is None:
         raise HTTPException(
             429,
-            f"Daily limit reached: normal accounts can send {limit} chat messages per day. "
-            "Your limit resets at 00:00 UTC (05:30 IST).",
+            f"Daily chat limit reached. You have used your {limit} chat messages for today. "
+            "You can chat again after the daily reset at 05:30 IST (00:00 UTC), "
+            "or ask the super admin to increase your limit.",
             headers={"Retry-After": str(max(1, int((reset - now).total_seconds())))},
         )
