@@ -13,4 +13,4 @@ RUN python -c "from fastembed import TextEmbedding; TextEmbedding(model_name='se
 COPY . .
 RUN useradd --create-home app && chown -R app:app /app /opt/models
 USER app
-CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1 --limit-max-requests 240"]
+CMD ["sh", "-c", "exec uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1"]

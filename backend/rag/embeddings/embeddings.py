@@ -3,8 +3,21 @@ import gc
 import os
 import sys
 import threading
+from functools import wraps
 
 from langchain_core.embeddings import Embeddings
+
+
+_inference_lock = threading.RLock()
+
+
+def serialized_embedding_work(function):
+    @wraps(function)
+    def wrapped(*args, **kwargs):
+        # Indexing and chat must not run separate model workloads concurrently.
+        with _inference_lock:
+            return function(*args, **kwargs)
+    return wrapped
 
 
 class SentenceTransformerEmbeddings(Embeddings):
@@ -18,6 +31,7 @@ class SentenceTransformerEmbeddings(Embeddings):
                 model_name=model_name,
                 cache_dir=os.getenv("FASTEMBED_CACHE_PATH"),
                 threads=1,
+                enable_cpu_mem_arena=False,
             )
         elif self.backend == "sentence_transformers":
             import torch
@@ -43,6 +57,17 @@ class SentenceTransformerEmbeddings(Embeddings):
 class EmbeddingModel:
     _model = None
     _lock = threading.Lock()
+
+    @classmethod
+    @serialized_embedding_work
+    def embed_query(cls, text):
+        model = None
+        try:
+            model = cls.get_model()
+            return model.embed_query(text)
+        finally:
+            del model
+            cls.release_model()
 
     @classmethod
     def get_model(cls):

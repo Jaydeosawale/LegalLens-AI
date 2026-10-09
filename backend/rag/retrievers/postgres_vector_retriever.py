@@ -56,9 +56,7 @@ class PostgresVectorRetriever:
 
         print("\nGenerating query embedding...")
 
-        embedding_model = EmbeddingModel.get_model()
-
-        query_embedding = embedding_model.embed_query(
+        query_embedding = EmbeddingModel.embed_query(
             question
         )
 

@@ -267,7 +267,15 @@ class ConversationService:
     def get_messages(
         db: Session,
         conversation_id: UUID,
+        limit: int | None = None,
     ) -> list[Message]:
+
+        if limit is not None:
+            messages = (db.query(Message)
+                        .filter(Message.conversation_id == conversation_id)
+                        .order_by(Message.created_at.desc(), Message.id.desc())
+                        .limit(max(1, min(limit, 100))).all())
+            return list(reversed(messages))
 
         return (
 

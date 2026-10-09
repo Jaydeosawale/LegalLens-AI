@@ -10,9 +10,10 @@ from api.models.document_embedding import DocumentEmbedding
 from api.models.role import UserRole
 from api.models.user import User
 from api.models.system_settings import SystemEvent
-from rag.embeddings.embeddings import EmbeddingModel
+from rag.embeddings.embeddings import EmbeddingModel, serialized_embedding_work
 
 
+@serialized_embedding_work
 def review_document(db, document, reviewer, decision, scope, note, precomputed_embeddings=None):
     if reviewer.role != UserRole.SUPER_ADMIN:
         raise HTTPException(403, 'Only the super admin can approve or reject RAG documents.')

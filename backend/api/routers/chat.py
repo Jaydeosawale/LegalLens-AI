@@ -61,9 +61,9 @@ def chat_home():
     "/",
     response_model=ChatResponse,
 )
-async def chat(
+def chat(
 
-    question: str = Form(...),
+    question: str = Form(..., min_length=1, max_length=8000),
 
     conversation_id: str | None = Form(None),
     document_ids: str | None = Form(None),
@@ -180,6 +180,7 @@ async def chat(
             db=db,
 
             conversation_id=conversation_id,
+            limit=20,
 
         )
 
