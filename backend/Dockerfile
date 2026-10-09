@@ -2,6 +2,7 @@ FROM python:3.11-slim-bookworm
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
     EMBEDDING_BACKEND=onnx FASTEMBED_CACHE_PATH=/opt/models \
     TOKENIZERS_PARALLELISM=false RERANK_ENABLED=false MALLOC_TRIM_THRESHOLD_=131072 \
+    RAG_QUERY_COUNT=1 CONTEXT_COMPRESSION_ENABLED=false \
     TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata OCR_LANGUAGES=eng+hin+mar
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 tesseract-ocr-eng tesseract-ocr-hin tesseract-ocr-mar \

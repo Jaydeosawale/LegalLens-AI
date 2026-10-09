@@ -34,6 +34,14 @@ class KeywordMemoryTest(DocumentReviewTest):
 
 
 class EmbeddingMemoryTest(unittest.TestCase):
+    def test_free_tier_preserves_source_text_without_compression_calls(self):
+        from rag.retrievers.context_compressor import ContextCompressor
+        documents = [Mock(page_content='Original legal source')]
+        with patch.dict(os.environ, {'CONTEXT_COMPRESSION_ENABLED': 'false'}), \
+                patch('rag.retrievers.context_compressor.LLMService.get_llm') as llm:
+            self.assertIs(ContextCompressor.compress('question', documents), documents)
+        llm.assert_not_called()
+
     def test_chat_history_fetches_only_recent_messages_in_order(self):
         db = Mock()
         query = db.query.return_value.filter.return_value.order_by.return_value

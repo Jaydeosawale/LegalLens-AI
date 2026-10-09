@@ -15,6 +15,7 @@ Behavior:
 """
 
 from copy import deepcopy
+import os
 
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -58,6 +59,9 @@ Document:
 
         if not documents:
             return []
+
+        if os.getenv("CONTEXT_COMPRESSION_ENABLED", "true").lower() != "true":
+            return documents
 
         print()
         print("=" * 80)

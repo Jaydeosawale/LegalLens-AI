@@ -15,6 +15,7 @@ Pipeline:
 """
 
 import traceback
+import os
 
 from api.services.postgres_bm25 import PostgresBM25Retriever
 
@@ -54,9 +55,8 @@ class HybridRetriever:
         print("MULTI QUERY GENERATION")
         print("=" * 80)
 
-        queries = MultiQueryGenerator.generate(
-            question
-        )
+        query_count = max(1, min(3, int(os.getenv("RAG_QUERY_COUNT", "3"))))
+        queries = [question] if query_count == 1 else MultiQueryGenerator.generate(question)
 
         # =====================================================
         # 2. QUERY SELECTION
@@ -64,7 +64,7 @@ class HybridRetriever:
 
         queries = QuerySelector.select(
             queries,
-            max_queries=3,
+            max_queries=query_count,
         )
 
         print()
