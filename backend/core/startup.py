@@ -36,7 +36,6 @@ class StartupManager:
     # Core AI Services
     # ==================================================
 
-    embedding_model = None
     llm = None
 
     @classmethod
@@ -58,11 +57,7 @@ class StartupManager:
         # Embedding Model
         # ==================================================
 
-        print("Loading embedding model...")
-
-        cls.embedding_model = EmbeddingModel.get_model()
-
-        print("✓ Embedding Model Ready")
+        print("Embedding model will load on demand")
 
         # ==================================================
         # Groq LLM
@@ -95,8 +90,7 @@ class StartupManager:
 
             "initialized": cls.initialized,
 
-            "embedding_loaded":
-                cls.embedding_model is not None,
+            "embedding_loaded": EmbeddingModel.is_loaded(),
 
             "llm_loaded":
                 cls.llm is not None,

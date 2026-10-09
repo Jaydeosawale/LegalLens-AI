@@ -1,4 +1,7 @@
+import ctypes
+import gc
 import os
+import sys
 import threading
 
 from langchain_core.embeddings import Embeddings
@@ -47,3 +50,19 @@ class EmbeddingModel:
             if cls._model is None:
                 cls._model = SentenceTransformerEmbeddings()
             return cls._model
+
+    @classmethod
+    def is_loaded(cls):
+        with cls._lock:
+            return cls._model is not None
+
+    @classmethod
+    def release_model(cls):
+        with cls._lock:
+            cls._model = None
+        gc.collect()
+        if sys.platform.startswith('linux'):
+            try:
+                ctypes.CDLL('libc.so.6').malloc_trim(0)
+            except OSError:
+                pass

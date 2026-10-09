@@ -85,6 +85,17 @@ class DocumentReviewTest(RoleFlowsTest):
         embed = Mock(side_effect=lambda texts: [[0.1] * 384 for _ in texts])
         with patch("api.services.document_review_service.EmbeddingModel.get_model",
                    return_value=Mock(embed_documents=embed)):
-            review_document(self.db, doc, self.users[UserRole.SUPER_ADMIN], "approved", "shared", None)
+            with patch("api.services.document_review_service.EmbeddingModel.release_model") as release:
+                review_document(self.db, doc, self.users[UserRole.SUPER_ADMIN], "approved", "shared", None)
+        release.assert_called_once()
         self.assertEqual(self.db.query(DocumentEmbedding).count(), 19)
         self.assertEqual([len(call.args[0]) for call in embed.call_args_list], [8, 8, 3])
+
+    def test_failed_indexing_releases_embedding_model(self):
+        doc = self.document(UserRole.ADMIN)
+        with patch("api.services.document_review_service.EmbeddingModel.get_model",
+                   return_value=Mock(embed_documents=Mock(side_effect=RuntimeError("Indexing failed")))):
+            with patch("api.services.document_review_service.EmbeddingModel.release_model") as release:
+                with self.assertRaises(RuntimeError):
+                    review_document(self.db, doc, self.users[UserRole.SUPER_ADMIN], "approved", "shared", None)
+        release.assert_called_once()
