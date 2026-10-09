@@ -31,6 +31,7 @@ from api.schemas.chat import ChatResponse
 from api.services.conversation_service import ConversationService
 from api.services.rag_chain import RAGChain
 from api.services.chat_rate_limit import reserve_chat_message
+from api.llm.llm import public_ai_error
 
 router = APIRouter(
     prefix="/chat",
@@ -63,7 +64,7 @@ def chat_home():
 )
 def chat(
 
-    question: str = Form(..., min_length=1, max_length=8000),
+    question: str = Form(..., min_length=1, max_length=2000),
 
     conversation_id: str | None = Form(None),
     document_ids: str | None = Form(None),
@@ -508,6 +509,10 @@ def chat(
             except Exception:
 
                 pass
+
+        ai_error = public_ai_error(e)
+        if ai_error is not None:
+            raise ai_error from None
 
         raise HTTPException(
 

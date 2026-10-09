@@ -34,6 +34,20 @@ class KeywordMemoryTest(DocumentReviewTest):
 
 
 class EmbeddingMemoryTest(unittest.TestCase):
+    def test_provider_limits_return_safe_actionable_errors(self):
+        import httpx
+        from groq import APIStatusError, APITimeoutError
+        from api.llm.llm import public_ai_error
+        request = httpx.Request('POST', 'https://api.groq.com')
+        for provider_status, public_status in ((413, 422), (429, 503), (500, 503)):
+            error = APIStatusError('private provider details',
+                                   response=httpx.Response(provider_status, request=request), body=None)
+            result = public_ai_error(error)
+            self.assertEqual(result.status_code, public_status)
+            self.assertNotIn('private provider details', result.detail)
+        self.assertEqual(public_ai_error(APITimeoutError(request=request)).status_code, 503)
+        self.assertIsNone(public_ai_error(ValueError('other error')))
+
     def test_context_budget_keeps_complete_passages(self):
         from rag.prompts.context_builder import ContextBuilder
         first, second = Mock(page_content='a' * 800), Mock(page_content='b' * 800)
