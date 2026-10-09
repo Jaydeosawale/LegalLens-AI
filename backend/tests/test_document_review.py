@@ -76,3 +76,15 @@ class DocumentReviewTest(RoleFlowsTest):
         with self.assertRaises(HTTPException) as caught:
             self.approve(personal, "shared")
         self.assertEqual(caught.exception.status_code, 422)
+
+    def test_approval_indexes_chunks_in_bounded_batches(self):
+        doc = self.document(UserRole.ADMIN)
+        for index in range(1, 19):
+            self.db.add(DocumentChunk(document_id=doc.id, chunk_index=index, content=f"Clause {index}"))
+        self.db.commit()
+        embed = Mock(side_effect=lambda texts: [[0.1] * 384 for _ in texts])
+        with patch("api.services.document_review_service.EmbeddingModel.get_model",
+                   return_value=Mock(embed_documents=embed)):
+            review_document(self.db, doc, self.users[UserRole.SUPER_ADMIN], "approved", "shared", None)
+        self.assertEqual(self.db.query(DocumentEmbedding).count(), 19)
+        self.assertEqual([len(call.args[0]) for call in embed.call_args_list], [8, 8, 3])
