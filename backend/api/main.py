@@ -19,7 +19,7 @@ from api.models.document_embedding import DocumentEmbedding
 from api.models.admin_permission import AdminPermission
 from api.models.platform_permission import PlatformPermission
 from api.models.system_settings import SystemSettings, SystemEvent
-from api.routers import system
+from api.routers import system, content_reports
 from api.routers import (
     admin,
     analytics,
@@ -101,6 +101,7 @@ app.add_middleware(
 print("Loading admin")
 app.include_router(admin.router)
 app.include_router(system.router)
+app.include_router(content_reports.router)
 
 print("Loading auth")
 app.include_router(auth.router)

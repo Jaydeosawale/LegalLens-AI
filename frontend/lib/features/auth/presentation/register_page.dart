@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/release_safety.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
@@ -309,61 +310,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
                         const SizedBox(height: 24),
 
-                        // =====================================
-                        // GOOGLE
-                        // =====================================
-                        SizedBox(
-                          height: 52,
-                          child: OutlinedButton.icon(
-                            onPressed: authState.isLoading
-                                ? null
-                                : () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Google Sign-Up will be connected next.',
-                                        ),
-                                      ),
-                                    );
-                                  },
-                            icon: const Icon(
-                              Icons.g_mobiledata_rounded,
-                              size: 28,
-                            ),
-                            label: const Text('Sign up with Google'),
-                          ),
+                        const Text(
+                          legalResearchNotice,
+                          style: TextStyle(fontSize: 12),
                         ),
-
-                        const SizedBox(height: 12),
-
-                        // =====================================
-                        // APPLE
-                        // =====================================
-                        if (Theme.of(context).platform == TargetPlatform.iOS ||
-                            Theme.of(context).platform == TargetPlatform.macOS)
-                          SizedBox(
-                            height: 52,
-                            child: OutlinedButton.icon(
-                              onPressed: authState.isLoading
-                                  ? null
-                                  : () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Apple Sign-Up will be connected next.',
-                                          ),
-                                        ),
-                                      );
-                                    },
-                              icon: const Icon(Icons.apple),
-                              label: const Text('Sign up with Apple'),
-                            ),
-                          ),
-
-                        const SizedBox(height: 28),
-
+                        const PolicyLinks(),
                         // =====================================
                         // LOGIN
                         // =====================================

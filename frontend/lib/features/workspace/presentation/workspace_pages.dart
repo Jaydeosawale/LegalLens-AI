@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/user_role.dart';
+import '../../../core/widgets/release_safety.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../chat/providers/chat_providers.dart';
 
@@ -495,6 +496,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             ),
           ),
           const Divider(height: 40),
+          const PolicyLinks(),
           ListTile(
             leading: const Icon(Icons.lock_reset),
             title: const Text('Reset password'),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/release_safety.dart';
 import '../domain/models/chat_models.dart';
 
 class ChatMessages extends StatefulWidget {
@@ -262,6 +263,7 @@ class _MessageBubble extends StatelessWidget {
                       ),
                     ],
 
+                    if (!isUser) ReportAiAnswer(content: message.content),
                     const SizedBox(height: 6),
 
                     Text(

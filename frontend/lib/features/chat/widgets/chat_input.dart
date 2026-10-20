@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/release_safety.dart';
 
 class ChatInput extends StatefulWidget {
   const ChatInput({super.key, this.onSend, this.isLoading = false});
@@ -70,6 +71,14 @@ class _ChatInputState extends State<ChatInput> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    legalResearchNotice,
+                    style: TextStyle(fontSize: 11),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
                   curve: Curves.easeOut,

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../chat/providers/chat_providers.dart';
 import '../../chat/domain/models/chat_models.dart';
 import 'workspace_pages.dart';
+import '../../../core/widgets/release_safety.dart';
 
 class DocumentAnalysisPage extends ConsumerStatefulWidget {
   const DocumentAnalysisPage({
@@ -119,6 +120,8 @@ class _DocumentAnalysisPageState extends ConsumerState<DocumentAnalysisPage> {
           widget.compare ? 'Compare Documents' : 'Document Summary',
           style: Theme.of(context).textTheme.headlineSmall,
         ),
+        const SizedBox(height: 12),
+        const Text(legalResearchNotice, style: TextStyle(fontSize: 12)),
         const SizedBox(height: 20),
         if (_loading)
           const Center(child: CircularProgressIndicator())
@@ -194,6 +197,7 @@ class _DocumentAnalysisPageState extends ConsumerState<DocumentAnalysisPage> {
             ),
           ),
           MarkdownBody(data: _answer!.content, selectable: true),
+          ReportAiAnswer(content: _answer!.content),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,

@@ -12,7 +12,7 @@ import '../domain/repositories/chat_repository.dart';
 
 const String _baseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'http://127.0.0.1:8000',
+  defaultValue: 'https://jaydeo-legallens-api.onrender.com',
 );
 
 // ============================================================
