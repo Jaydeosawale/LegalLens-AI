@@ -8,5 +8,15 @@
     "name": "LegalLens-AI-1.0.0-android-arm64.apk",
     "bytes": 21644433,
     "sha256": "4b43e45d1c8ff3ba5045f8149525d5e82a7e6d07dd1520da0651ee2170e1bf36"
+  },
+  {
+    "name": "Legal-Lens-1.0.0-play-release.aab",
+    "bytes": 58085004,
+    "sha256": "c9729abfc9eed1cb7f15e0fd86729c54577257e6229aad4ad127485d42e1db55",
+    "package": "com.jaydeo.legallens",
+    "display_name": "Legal Lens",
+    "version_code": 2,
+    "version_name": "1.0.0",
+    "manifest_verified": true
   }
 ]
