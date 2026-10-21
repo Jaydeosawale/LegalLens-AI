@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:133412579657:android:2aeeccd0eba451f6cf1298",
+        "mobilesdk_app_id": "1:133412579657:android:2f9498838f41ceaacf1298",
         "android_client_info": {
-          "package_name": "com.jaydeo.legallens.frontend_flutter"
+          "package_name": "com.jaydeo.legallens"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "133412579657-8jqu404bdidmjri87uf8g0qkc7lkcpuo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDddHUKKnguN_6uHeXL9hMFLAztB9cf-dw"
@@ -20,7 +25,55 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "133412579657-8jqu404bdidmjri87uf8g0qkc7lkcpuo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "133412579657-flp1naceg00f64o5e4s1cm39aips4oei.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.jaydeo.legallens.frontendFlutter"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:133412579657:android:2aeeccd0eba451f6cf1298",
+        "android_client_info": {
+          "package_name": "com.jaydeo.legallens.frontend_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "133412579657-8jqu404bdidmjri87uf8g0qkc7lkcpuo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDddHUKKnguN_6uHeXL9hMFLAztB9cf-dw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "133412579657-8jqu404bdidmjri87uf8g0qkc7lkcpuo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "133412579657-flp1naceg00f64o5e4s1cm39aips4oei.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.jaydeo.legallens.frontendFlutter"
+              }
+            }
+          ]
         }
       }
     }

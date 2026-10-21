@@ -12,4 +12,4 @@ Support: jaydeep.sawale97@gmail.com. Verify control of the registered email, nev
 
 ## Signing
 
-Release upload key and key.properties are private local files, excluded from Git. Preserve both securely; do not use the old debug certificate for Play uploads. Target SDK 36. Package remains the Firebase-registered `com.jaydeo.legallens.frontend_flutter`.
+Release upload key and key.properties are private local files, excluded from Git. Preserve both securely; do not use the old debug certificate for Play uploads. Target SDK 36. The existing Play Console record requires `com.jaydeo.legallens`. Registered a matching Android app in the same Firebase project and updated both native and Flutter Firebase configuration. The Kotlin namespace remains unchanged so MainActivity continues resolving correctly. Public display name: Legal Lens.

@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDddHUKKnguN_6uHeXL9hMFLAztB9cf-dw',
-    appId: '1:133412579657:android:2aeeccd0eba451f6cf1298',
+    appId: '1:133412579657:android:2f9498838f41ceaacf1298',
     messagingSenderId: '133412579657',
     projectId: 'legallens-ai-d46f1',
     storageBucket: 'legallens-ai-d46f1.firebasestorage.app',
