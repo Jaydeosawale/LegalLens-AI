@@ -1,3 +1,4 @@
+import '../widgets/web_play_store_frame.dart';
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_theme.dart';
@@ -19,7 +20,7 @@ class LegalLensApp extends StatelessWidget {
 
         return MediaQuery(
           data: mediaQuery.copyWith(textScaler: TextScaler.noScaling),
-          child: child ?? const SizedBox.shrink(),
+          child: WebPlayStoreFrame(child: child ?? const SizedBox.shrink()),
         );
       },
     );
