@@ -227,6 +227,8 @@ class NeighborRetriever:
                             page_content=chunk.content,
 
                             metadata={
+                                **(chunk.metadata_ or {}),
+                                "filename": db_document.original_filename,
 
                                 "document_id": str(
                                     db_document.id

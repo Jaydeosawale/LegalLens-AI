@@ -80,7 +80,9 @@ class DocumentIngestionService:
         # 2. Read uploaded file
         # ---------------------------------------------
 
-        file_bytes = uploaded_file.file.read()
+        # Read at most the limit plus one byte so oversized uploads cannot
+        # exhaust the small hosting instance before validation.
+        file_bytes = uploaded_file.file.read(10 * 1024 * 1024 + 1)
 
         if not file_bytes:
             raise ValueError(

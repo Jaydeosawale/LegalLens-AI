@@ -34,6 +34,35 @@ class KeywordMemoryTest(DocumentReviewTest):
 
 
 class EmbeddingMemoryTest(unittest.TestCase):
+    def test_oversized_upload_is_read_with_a_memory_bound(self):
+        with patch.dict('sys.modules', {'api.storage.r2_storage': Mock()}):
+            from api.services.document_ingestion_service import DocumentIngestionService
+        upload = Mock(filename='oversized.pdf')
+        upload.file.read.return_value = b'x' * (10 * 1024 * 1024 + 1)
+        db = Mock()
+        with self.assertRaisesRegex(ValueError, '10 MB'):
+            DocumentIngestionService.ingest_document(upload, db, user_id='owner')
+        upload.file.read.assert_called_once_with(10 * 1024 * 1024 + 1)
+        db.query.assert_not_called()
+
+    def test_citations_preserve_one_based_pdf_pages(self):
+        from rag.citation.citation_service import CitationService
+        documents = [Mock(metadata={'filename': 'law.pdf', 'page': 1}),
+                     Mock(metadata={'document_name': 'other.pdf', 'page': 3})]
+        self.assertEqual(CitationService.build(documents), [
+            {'filename': 'law.pdf', 'page': 1},
+            {'filename': 'other.pdf', 'page': 3}])
+
+    def test_citations_only_link_explicitly_referenced_context(self):
+        from rag.citation.citation_service import CitationService
+        docs = [Mock(metadata={'filename': 'used.pdf', 'page': 7}),
+                Mock(metadata={'filename': 'unrelated.pdf', 'page': 8}),
+                Mock(metadata={'filename': 'Unknown', 'page': 1})]
+        self.assertEqual(CitationService.build(docs, 'Finding [Document 1, page 7].'),
+                         [{'filename': 'used.pdf', 'page': 7}])
+        self.assertEqual(CitationService.build([Mock(metadata={'filename': 'law.pdf'})]), [])
+        self.assertEqual(CitationService.build(docs, '[Document 99, page 2]'), [])
+
     def test_provider_limits_return_safe_actionable_errors(self):
         import httpx
         from groq import APIStatusError, APITimeoutError
@@ -50,9 +79,15 @@ class EmbeddingMemoryTest(unittest.TestCase):
 
     def test_context_budget_keeps_complete_passages(self):
         from rag.prompts.context_builder import ContextBuilder
-        first, second = Mock(page_content='a' * 800), Mock(page_content='b' * 800)
+        first, second = Mock(page_content='a' * 800, metadata={}), Mock(page_content='b' * 800, metadata={})
         self.assertEqual(ContextBuilder.select_documents([first, second], max_bytes=1500), [first])
         self.assertEqual(first.page_content, 'a' * 800)
+
+    def test_context_budget_includes_large_unicode_metadata(self):
+        from rag.prompts.context_builder import ContextBuilder
+        document = Mock(page_content='Short legal passage', metadata={
+            'document_name': '法律' * 1000, 'chunk_id': 'chunk', 'page': 1})
+        self.assertEqual(ContextBuilder.select_documents([document], max_bytes=1500), [])
 
     def test_free_tier_preserves_source_text_without_compression_calls(self):
         from rag.retrievers.context_compressor import ContextCompressor

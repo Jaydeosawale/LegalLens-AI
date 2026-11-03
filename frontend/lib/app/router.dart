@@ -8,6 +8,7 @@ import '../features/workspace/presentation/system_page.dart';
 import '../features/advanced/presentation/advanced_research_page.dart';
 import '../features/auth/presentation/auth_gate.dart';
 import '../features/auth/presentation/login_page.dart';
+import '../features/auth/presentation/forgot_password_page.dart';
 import '../features/auth/presentation/register_page.dart';
 import '../features/chat/presentation/chat_home_page.dart';
 import '../features/knowledge_base/presentation/knowledge_base_page.dart';
@@ -48,6 +49,10 @@ final GoRouter appRouter = GoRouter(
     // LOGIN
     // =========================================================
     GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+    GoRoute(
+      path: '/forgot-password',
+      builder: (context, state) => const ForgotPasswordPage(),
+    ),
 
     // =========================================================
     // REGISTER

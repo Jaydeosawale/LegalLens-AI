@@ -23,7 +23,9 @@ class ContextBuilder:
         selected = []
         remaining = max_bytes
         for document in documents:
-            size = len(document.page_content.encode('utf-8')) + 400
+            # Count the rendered metadata too: filenames and chunk IDs can
+            # exceed the former fixed allowance, especially with Unicode.
+            size = len(ContextBuilder.build([document]).encode('utf-8')) + 32
             if size <= remaining:
                 selected.append(document)
                 remaining -= size

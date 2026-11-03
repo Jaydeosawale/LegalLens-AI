@@ -105,10 +105,8 @@ class RAGChain:
 
         print("\nCOMPRESSING CONTEXT")
 
-        documents = ContextCompressor.compress(
-            question=question,
-            documents=documents,
-        )
+        # RetrievalPipeline already compresses context when enabled.
+        # Do not spend a second provider request on the same passages.
         documents = ContextBuilder.select_documents(documents)
 
         print(
@@ -224,7 +222,7 @@ class RAGChain:
         print("\nBUILDING CITATIONS")
 
         citations = CitationService.build(
-            documents
+            documents, answer=answer
         )
 
         print(
