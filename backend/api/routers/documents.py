@@ -23,7 +23,8 @@ from api.models.user import User
 from api.models.role import UserRole
 from api.models.document_chunk import DocumentChunk
 from api.models.document_embedding import DocumentEmbedding
-from api.models.system_settings import SystemEvent
+from api.models.system_settings import SystemEvent, SystemSettings
+from api.services.storage_cleanup import queue_cleanup, complete_cleanup, PREFIX
 from api.services.document_review_service import review_document
 from api.services.document_ingestion_service import (
     DocumentIngestionService,
@@ -329,13 +330,19 @@ def delete_document(
         # Related chunks and embeddings are automatically
         # deleted because of CASCADE relationships.
 
+        cleanup_id = queue_cleanup(db, document)
         db.delete(document)
-
         db.commit()
+        storage_deleted = True
+        if cleanup_id:
+            from api.storage.r2_storage import r2_storage
+            storage_deleted = complete_cleanup(db, cleanup_id, r2_storage)
 
         return {
             "success": True,
-            "message": "Document deleted successfully.",
+            "message": ("Document deleted successfully." if storage_deleted else
+                        "Document removed. Stored-file cleanup is pending retry."),
+            "storage_cleanup_pending": not storage_deleted,
         }
 
     except HTTPException:
@@ -351,3 +358,16 @@ def delete_document(
             status_code=500,
             detail=str(e),
         )
+
+
+@router.post('/storage-cleanup/{document_id}')
+def retry_storage_cleanup(document_id: str, db: Session = Depends(get_db),
+                          current_user: User = Depends(document_actor)):
+    task = db.get(SystemSettings, PREFIX + document_id)
+    if task is None:
+        return {'success': True, 'storage_cleanup_pending': False}
+    if task.values.get('owner_id') != current_user.id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
+        raise HTTPException(404, 'Cleanup record not found.')
+    from api.storage.r2_storage import r2_storage
+    complete = complete_cleanup(db, task.id, r2_storage)
+    return {'success': True, 'storage_cleanup_pending': not complete}
