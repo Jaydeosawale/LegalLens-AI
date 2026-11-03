@@ -435,10 +435,20 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
                               );
                               if (approved != true) return;
                               try {
-                                await ref
+                                final response = await ref
                                     .read(dioProvider)
                                     .delete('/documents/${document['id']}');
                                 await _loadDocuments();
+                                if (mounted) {
+                                  final data = response.data;
+                                  _showMessage(
+                                    data is Map &&
+                                            data['storage_cleanup_pending'] ==
+                                                true
+                                        ? 'Document removed. Stored-file cleanup is pending retry.'
+                                        : 'Document deleted successfully.',
+                                  );
+                                }
                               } catch (e) {
                                 if (mounted) _showMessage(apiError(e));
                               }

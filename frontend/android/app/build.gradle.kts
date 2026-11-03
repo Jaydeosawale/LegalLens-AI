@@ -11,7 +11,8 @@ plugins {
 }
 
 val signingProperties = Properties().apply {
-    load(FileInputStream(rootProject.file("key.properties")))
+    val signingFile = rootProject.file("key.properties")
+    if (signingFile.exists()) load(FileInputStream(signingFile))
 }
 
 android {
@@ -39,7 +40,7 @@ android {
         create("release") {
             keyAlias = signingProperties.getProperty("keyAlias")
             keyPassword = signingProperties.getProperty("keyPassword")
-            storeFile = rootProject.file(signingProperties.getProperty("storeFile"))
+            signingProperties.getProperty("storeFile")?.let { storeFile = rootProject.file(it) }
             storePassword = signingProperties.getProperty("storePassword")
         }
     }

@@ -485,7 +485,7 @@ class _ChatMainArea extends StatelessWidget {
           SafeArea(
             top: false,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
               decoration: const BoxDecoration(color: AppColors.workspace),
               child: ChatInput(
                 isLoading: controller.isLoading,

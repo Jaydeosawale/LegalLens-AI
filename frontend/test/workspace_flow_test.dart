@@ -19,7 +19,11 @@ void main() {
   testWidgets('All role workspaces render at desktop and mobile sizes', (
     tester,
   ) async {
-    for (final size in [const Size(1440, 1000), const Size(390, 844)]) {
+    for (final size in [
+      const Size(1440, 1000),
+      const Size(390, 844),
+      const Size(320, 640),
+    ]) {
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1;
       for (final role in UserRole.values) {

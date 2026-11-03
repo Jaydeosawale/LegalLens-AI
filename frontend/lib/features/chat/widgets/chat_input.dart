@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/release_safety.dart';
@@ -56,11 +57,12 @@ class _ChatInputState extends State<ChatInput> {
   @override
   Widget build(BuildContext context) {
     final isFocused = _focusNode.hasFocus;
+    final compact = MediaQuery.sizeOf(context).width < 600;
 
     return SafeArea(
       top: false,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(24, 14, 24, 18),
+        padding: EdgeInsets.fromLTRB(compact ? 8 : 24, 8, compact ? 8 : 24, 8),
         decoration: const BoxDecoration(
           color: AppColors.workspace,
           border: Border(top: BorderSide(color: AppColors.borderLight)),
@@ -178,19 +180,19 @@ class _ChatInputState extends State<ChatInput> {
                                 onPressed: widget.isLoading
                                     ? null
                                     : () {
-                                        // TODO: Open document picker.
+                                        context.go('/documents');
                                       },
                               ),
 
                               const SizedBox(width: 2),
 
                               _InputActionButton(
-                                tooltip: 'Research mode',
+                                tooltip: 'Summarize documents',
                                 icon: Icons.auto_awesome_outlined,
                                 onPressed: widget.isLoading
                                     ? null
                                     : () {
-                                        // TODO: Open research mode selector.
+                                        context.go('/summary');
                                       },
                               ),
 
